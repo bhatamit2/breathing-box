@@ -5,6 +5,9 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,3 +30,12 @@ jobs:
         with:
           name: breathing-box-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publish APK as a release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk BreathingBox.apk
+          gh release create "build-${{ github.run_number }}" BreathingBox.apk \
+            --title "Breathing Box build ${{ github.run_number }}" \
+            --notes "Debug APK. Open this page on your phone, tap BreathingBox.apk and install."
